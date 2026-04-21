@@ -312,9 +312,8 @@ alloc_fail:
 #define spi_master			spi_controller
 #endif
 
-static inline bool hbp_spi_bus_ready(struct spi_bus *bus)
+static inline bool hbp_spi_bus_ready(struct spi_device *spi_dev)
 {
-	struct spi_device *spi_dev = bus->spi_dev;
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 12, 0))
 	struct spi_master *master = spi_dev->controller;
 #else
@@ -326,15 +325,6 @@ static inline bool hbp_spi_bus_ready(struct spi_bus *bus)
 
 	if (!master) {
 		return true;
-	}
-
-	if (!bus->bus_ready) {
-		wait_event_interruptible_timeout(bus->spi_wait,
-						 bus->bus_ready,
-						 msecs_to_jiffies(bus->irq_need_dev_resume_time));
-		if (bus->bus_ready) {
-			return false;
-		}
 	}
 
 	ctrl_dev = master->dev.parent;
@@ -366,7 +356,7 @@ static int hbp_spi_sync(void *ops, uint8_t *tx, uint8_t *rx, size_t len)
 		return -ENODEV;
 	}
 
-	if (hbp_spi_bus_ready(bus)) {
+	if (hbp_spi_bus_ready(bus->spi_dev)) {
 		return -EBUSY;
 	}
 
@@ -388,7 +378,7 @@ static int hbp_spi_write_block(void *ops, uint8_t *wbuf, size_t len)
 		return -ENODEV;
 	}
 
-	if (hbp_spi_bus_ready(bus)) {
+	if (hbp_spi_bus_ready(bus->spi_dev)) {
 		return -EBUSY;
 	}
 
@@ -410,7 +400,7 @@ static int hbp_spi_read_block(void *ops, uint8_t *rbuf, size_t len)
 		return -ENODEV;
 	}
 
-	if (hbp_spi_bus_ready(bus)) {
+	if (hbp_spi_bus_ready(bus->spi_dev)) {
 		return -EBUSY;
 	}
 
@@ -558,8 +548,6 @@ static int hbp_spi_probe(struct spi_device *spi_dev)
 	}
 
 	bus->spi_dev = spi_dev;
-	bus->bus_ready = true;
-	init_waitqueue_head(&bus->spi_wait);
 
 	mutex_init(&bus->mtx);
 	bus->spi_ops.read_block = hbp_spi_read_block;
@@ -576,12 +564,6 @@ static int hbp_spi_probe(struct spi_device *spi_dev)
 		bus->spi_dev->cs_setup.unit = cs_setup[1];
 		hbp_info("cs_setup %d %d\n", cs_setup[0], cs_setup[1]);
 	}
-	ret = of_property_read_u32(np, "irq_need_dev_resume_time", &(bus->irq_need_dev_resume_time));
-	if (ret) {
-		hbp_info("irq_need_dev_resume_time is not specified\n");
-		bus->irq_need_dev_resume_time = 50;
-	}
-	hbp_info("irq_need_dev_resume_time is %d ms\n", bus->irq_need_dev_resume_time);
 
 #ifdef CONFIG_TOUCHPANEL_MTK_PLATFORM
 #else

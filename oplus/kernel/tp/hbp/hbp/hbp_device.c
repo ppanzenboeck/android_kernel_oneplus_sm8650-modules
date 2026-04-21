@@ -212,6 +212,7 @@ static int hbp_device_dt_parse(struct hbp_core *hbp, struct hbp_device *hbp_dev)
 	ret = of_property_read_string(np, "clock-names", &clock_name);
 	if (ret < 0) {
 		hbp_err("clock-names not defined, use default\n");
+		strncpy(hbp_dev->clk_name, "bb_clk4", 16);
 	} else {
 		hbp_err("got clk name : %s.\n", clock_name);
 		strncpy(hbp_dev->clk_name, clock_name, 16);
@@ -391,12 +392,9 @@ struct hbp_device *hbp_device_create(void *priv,
 	hbp_dev->screenoff_ifp = false;
 
 	/*clk*/
-	if (hbp_dev->clk_name[0] != 0) {
-		hbp_dev->pen_ck = devm_clk_get(hbp_dev->dev, hbp_dev->clk_name);
-		if (IS_ERR(hbp_dev->pen_ck)) {
-			hbp_err("failed to get %s.\n", hbp_dev->clk_name);
-			hbp_dev->pen_ck = NULL;
-		}
+	hbp_dev->pen_ck = devm_clk_get(hbp_dev->dev, hbp_dev->clk_name);
+	if (IS_ERR(hbp_dev->pen_ck)) {
+		hbp_err("failed to get %s.\n", hbp_dev->clk_name);
 	}
 
 	return hbp_dev;
@@ -1161,12 +1159,8 @@ static long hbp_ctrl_unlocked_ioctl(struct file *filp, unsigned int cmd, unsigne
 		break;
 	case HBP_IOCTRL_FP_GRIP_STATUS:
 		if (hbp_dev->fp_grip_support) {
-			if (usr.val == FP_GRIP_DISABLE_TIMEOUT || usr.val == FP_GRIP_DISABLE) {
-				hbp_dev->fp_grip_enable = FP_GRIP_DISABLE;
-			} else {
-				hbp_dev->fp_grip_enable = FP_GRIP_ENABLE;
-			}
-			hbp_info("transfer girp of fp pass state %s\n", hbp_dev->fp_grip_enable > 0 ? "enable" : "disable");
+			hbp_dev->fp_grip_enable = !!usr.val;
+			hbp_info("%s finger hold\n", (hbp_dev->fp_grip_enable & 1) > 0 ? "enable" : "disable");
 		}
 		break;
 	default:

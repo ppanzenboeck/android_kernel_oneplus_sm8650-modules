@@ -4948,11 +4948,8 @@ static int oplus_chg_wls_rx_handle_state_default(struct oplus_chg_wls *wls_dev)
 			goto out;*/
 		case WLS_ADAPTER_TYPE_VOOC:
 			rc = oplus_chg_wls_get_third_adapter_v_id(wls_dev);
-			if (rc < 0) {
-				wls_status->wls_type = OPLUS_CHG_WLS_BPP;
+			if (rc < 0)
 				goto out;
-			}
-
 			if (wls_dev->support_fastchg) {
 				wls_status->wls_type = OPLUS_CHG_WLS_VOOC;
 			} else {
@@ -4968,10 +4965,8 @@ static int oplus_chg_wls_rx_handle_state_default(struct oplus_chg_wls *wls_dev)
 		case WLS_ADAPTER_TYPE_SVOOC:
 		case WLS_ADAPTER_TYPE_PD_65W:
 			rc = oplus_chg_wls_get_third_adapter_v_id(wls_dev);
-			if (rc < 0) {
-				wls_status->wls_type = OPLUS_CHG_WLS_BPP;
+			if (rc < 0)
 				goto out;
-			}
 
 			if (wls_dev->support_fastchg) {
 				if (wls_status->adapter_type == WLS_ADAPTER_TYPE_SVOOC)
@@ -5246,10 +5241,8 @@ static int oplus_chg_wls_rx_handle_state_bpp(struct oplus_chg_wls *wls_dev)
 		break;
 	case WLS_ADAPTER_TYPE_VOOC:
 		rc = oplus_chg_wls_get_third_adapter_v_id(wls_dev);
-		if (rc < 0) {
-			wls_status->wls_type = OPLUS_CHG_WLS_BPP;
+		if (rc < 0)
 			goto out;
-		}
 
 		if (wls_dev->support_fastchg) {
 			wls_status->wls_type = OPLUS_CHG_WLS_VOOC;
@@ -5266,10 +5259,8 @@ static int oplus_chg_wls_rx_handle_state_bpp(struct oplus_chg_wls *wls_dev)
 	case WLS_ADAPTER_TYPE_SVOOC:
 	case WLS_ADAPTER_TYPE_PD_65W:
 		rc = oplus_chg_wls_get_third_adapter_v_id(wls_dev);
-		if (rc < 0) {
-			wls_status->wls_type = OPLUS_CHG_WLS_BPP;
+		if (rc < 0)
 			goto out;
-		}
 
 		if (wls_dev->support_fastchg) {
 			if (wls_status->adapter_type == WLS_ADAPTER_TYPE_SVOOC)
