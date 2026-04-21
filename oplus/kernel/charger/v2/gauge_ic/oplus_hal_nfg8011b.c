@@ -106,7 +106,6 @@ int nfg8011b_get_car_c_parameters(struct chip_bq27541 *chip, int *car_c_ptr)
 {
 	int ret;
 	int data_check;
-	int value;
 	int try_count = NFG8011B_SUBCMD_TRY_COUNT;
 	u8 extend_data[14] = {0};
 	struct gauge_track_info_reg extend = { NFG8011B_SUBCMD_ALG_ADDR_1 , 12 };
@@ -137,10 +136,7 @@ int nfg8011b_get_car_c_parameters(struct chip_bq27541 *chip, int *car_c_ptr)
 		return -EINVAL;
 
 	/* data10 and data11 represent car values */
-	value = (extend_data[11] << 0x08) | extend_data[10];
-	if (value & 0x8000)
-		value = -((~(value - 1)) & 0xFFFF);
-	*car_c_ptr = value;
+	*car_c_ptr = (extend_data[11] << 0x08) | extend_data[10];
 	return 0;
 
 error:

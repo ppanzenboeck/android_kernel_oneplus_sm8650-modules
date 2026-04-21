@@ -1010,8 +1010,8 @@ static ssize_t ilitek_node_ver_info_read(struct file *filp, char __user *buff,
 
 	mutex_lock(&ilits->touch_mutex);
 	memset(g_user_buf, 0, USER_STR_BUFF * sizeof(unsigned char));
-	len += snprintf(g_user_buf + len, USER_STR_BUFF - len, "CHIP ID = %s\n",
-			ilits->chip->product_id);
+	len += snprintf(g_user_buf + len, USER_STR_BUFF - len, "CHIP ID = %x\n",
+			ilits->chip->id);
 	len += snprintf(g_user_buf + len, USER_STR_BUFF - len,
 			"FW version = %d.%d.%d.%d\n",
 			ilits->chip->fw_ver >> 24, (ilits->chip->fw_ver >> 16) & 0xFF,
@@ -1635,7 +1635,6 @@ static ssize_t ilitek_node_ioctl_write(struct file *filp, const char *buff,
 		ili_ic_get_core_ver();
 		ili_ic_get_tp_info();
 		ili_ic_get_panel_info();
-		ili_ic_get_support_driver_ver();
 		ILI_INFO("Driver version = %s\n", DRIVER_VERSION);
 		/*ILI_INFO("TP module = %s\n", ilits->md_name);*/
 
@@ -2364,15 +2363,12 @@ static long ilitek_node_ioctl(struct file *filp, unsigned int cmd,
 		break;
 
 	case ILITEK_IOCTL_TP_CHIP_ID:
-		ILI_DBG("ioctl: get chip id (with second chip id)\n");
-		id_to_user[CHIP_ID_BYTE] = ILI_CHIP_ID;
-		id_to_user[CHIP_PID_BYTE] = ilits->chip->pid;
-		id_to_user[CHIP_SECOND_PID_BYTE] = ilits->chip->second_pid;
-		id_to_user[CHIP_OTP_BYTE] = ilits->chip->otp_id;
-		id_to_user[CHIP_ANA_BYTE] = ilits->chip->ana_id;
-		length = ILI_CHIP_ID_LEN;
+		ILI_DBG("ioctl: get chip id\n");
+		id_to_user[0] = ilits->chip->pid;
+		id_to_user[1] = ilits->chip->otp_id;
+		id_to_user[2] = ilits->chip->ana_id;
 
-		if (copy_to_user((u32 *) arg, id_to_user, sizeof(u32) * length)) {
+		if (copy_to_user((u32 *) arg, id_to_user, sizeof(u32) * 3)) {
 			ILI_ERR("Failed to copy driver ver to user space\n");
 			ret = -ENOTTY;
 		}
@@ -2432,7 +2428,7 @@ static long ilitek_node_ioctl(struct file *filp, unsigned int cmd,
 
 	/* It works for host downloado only */
 	case ILITEK_IOCTL_ICE_MODE_SWITCH:
-		if (copy_from_user(szBuf, (u8 *) arg, ILI_MODE_SWITCH_MODE_PARA)) {
+		if (copy_from_user(szBuf, (u8 *) arg, 1)) {
 			ILI_ERR("Failed to copy data from user space\n");
 			ret = -ENOTTY;
 			break;
