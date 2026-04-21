@@ -29,11 +29,6 @@ struct film_info {
 	bool trusty;
 };
 
-struct touch_fp_grip_info {
-	int value;
-	int reserved;
-};
-
 typedef enum {
 	HBP_PANEL_EVENT_UNKNOWN = 0,
 	HBP_PANEL_EVENT_EARLY_SUSPEND = 0x01,

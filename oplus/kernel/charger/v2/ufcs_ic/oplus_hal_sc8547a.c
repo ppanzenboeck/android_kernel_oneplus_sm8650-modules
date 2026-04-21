@@ -2483,13 +2483,13 @@ static int sc8547a_cp_get_work_status(struct oplus_chg_ic_dev *ic_dev, bool *sta
 	}
 	chip = oplus_chg_ic_get_priv_data(ic_dev);
 
-	rc = sc8547_read_byte(chip->client, SC8547_REG_06, &data);
+	rc = sc8547_read_byte(chip->client, SC8547_REG_07, &data);
 	if (rc < 0) {
-		chg_err("read SC8547_REG_06 error, rc=%d\n", rc);
+		chg_err("read SC8547_REG_07 error, rc=%d\n", rc);
 		return rc;
 	}
 
-	*start = (data & SC8547A_CP_SWITCHING_STAT_MASK) ? true : false;
+	*start = data & BIT(7);
 
 	return 0;
 }
