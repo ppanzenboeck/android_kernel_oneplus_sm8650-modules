@@ -1153,9 +1153,7 @@ static int _sde_connector_update_dirty_properties(
 	struct sde_connector *c_conn;
 	struct sde_connector_state *c_state;
 	int idx;
-#ifndef OPLUS_FEATURE_DISPLAY
 	u32 b_lvl;
-#endif
 
 	if (!connector) {
 		SDE_ERROR("invalid argument\n");
@@ -1181,7 +1179,6 @@ static int _sde_connector_update_dirty_properties(
 			break;
 #ifdef OPLUS_FEATURE_DISPLAY
 		case CONNECTOR_PROP_SYNC_BACKLIGHT_LEVEL:
-		case CONNECTOR_PROP_BRIGHTNESS:
 			if (c_conn) {
 				c_conn->bl_need_sync = true;
 			}
@@ -1191,13 +1188,12 @@ static int _sde_connector_update_dirty_properties(
 				c_conn->osc_need_update = true;
 			}
 			break;
-#else
+#endif /* OPLUS_FEATURE_DISPLAY */
 		case CONNECTOR_PROP_BRIGHTNESS:
 			b_lvl = sde_connector_get_property(connector->state,
 						CONNECTOR_PROP_BRIGHTNESS);
 			backlight_device_set_brightness(c_conn->bl_device, b_lvl);
 			break;
-#endif /* OPLUS_FEATURE_DISPLAY */
 		default:
 			/* nothing to do for most properties */
 			break;
