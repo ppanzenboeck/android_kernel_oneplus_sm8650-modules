@@ -148,7 +148,6 @@ struct oplus_ofp_params {
 	u32 video_mode_aod_brightness_value_count;
 	u8 video_mode_aod_high_brightness_values[VIDEO_AOD_BRIGHTNESS_VALUE_COUNT];
 	u8 video_mode_aod_low_brightness_values[VIDEO_AOD_BRIGHTNESS_VALUE_COUNT];
-	bool fp_local_hbm_calibration;
 };
 
 /* log level config */
